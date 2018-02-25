@@ -1,0 +1,7 @@
+# Raspberry Pi Code gitignore
+# Ignore Everything
+/* 
+
+# Except for these
+!.gitignore
+!.py

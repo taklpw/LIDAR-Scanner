@@ -1,0 +1,9 @@
+# Hardware gitignore
+# Ignore everything
+/*
+
+# Except for these
+!.gitignore
+!*.STL
+!*.SLDPRT
+!*.SLDASM

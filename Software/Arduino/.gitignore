@@ -1,0 +1,9 @@
+# Ardunio Code gitignore
+# Ignore Everything
+/*
+
+# Except for these
+!.gitignore
+!*.ino
+!*.cpp
+!*.h
