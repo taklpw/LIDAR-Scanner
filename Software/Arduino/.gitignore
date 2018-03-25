@@ -3,6 +3,8 @@
 /*
 
 # Except for these
+!/lidar_scanner
+!/lidar_scanner/**
 !.gitignore
 !*.ino
 !*.cpp

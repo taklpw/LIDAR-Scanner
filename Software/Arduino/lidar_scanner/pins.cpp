@@ -22,10 +22,13 @@ uint8_t ENCODERA_PORTD = 3;
 uint8_t ENCODERB_PIN = 4;
 uint8_t ENCODERB_PORTD = 4; 
 /* Motor Pins */
-uint8_t MOTOR_PWM_PIN = 9;
-uint8_t MOTOR_PWM_PORTB = 1;
-uint8_t MOTOR_EN_PIN  = 10;
-uint8_t MOTOR_EN_PORTB = 2;
+uint8_t MOTOR_PWM_PIN = 10;
+uint8_t MOTOR_PWM_PORTB = 2;
+uint8_t MOTOR_IN1_PIN = 9;
+uint8_t MOTOR_IN1_PORTB = 1;
+uint8_t MOTOR_IN2_PIN = 8;
+uint8_t MOTOR_IN2_PORTB = 0;
+
 /* I2C Pins */
 uint8_t SCL_PIN = A5;
 uint8_t SCL_PORTC = 5;

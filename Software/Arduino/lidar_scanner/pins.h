@@ -26,8 +26,10 @@ extern uint8_t ENCODERB_PORTD;
 /* Motor Pins */
 extern uint8_t MOTOR_PWM_PIN;
 extern uint8_t MOTOR_PWM_PORTB;
-extern uint8_t MOTOR_EN_PIN;
-extern uint8_t MOTOR_EN_PORTB;
+extern uint8_t MOTOR_IN1_PIN;
+extern uint8_t MOTOR_IN1_PORTB;
+extern uint8_t MOTOR_IN2_PIN;
+extern uint8_t MOTOR_IN2_PORTB;
 
 /* I2C Pins */
 extern uint8_t SCL_PIN;
