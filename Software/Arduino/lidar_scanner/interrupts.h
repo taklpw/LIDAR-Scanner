@@ -16,6 +16,7 @@
  /* -- Interrupt Variables -- */
 extern volatile uint16_t encoderPosition;
 extern volatile bool indexFlag;
+extern volatile uint16_t maxEncoderPosition;
 
 /* -- Interrupt Function Prototypes -- */
 void indexFall(void);

@@ -12,6 +12,7 @@
  /* -- Interrupt Variables -- */
 volatile uint16_t encoderPosition;
 volatile bool indexFlag = false;
+volatile uint16_t maxEncoderPosition = 0;
 
 /* -- Interrupt Functions -- */
 /**
@@ -46,6 +47,10 @@ void encoderAChange(){
     encoderPosition--;
   }else{
     encoderPosition++;
+  }
+
+  if(encoderPosition > maxEncoderPosition){
+    maxEncoderPosition = encoderPosition;
   }
 }
 
