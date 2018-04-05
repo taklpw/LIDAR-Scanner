@@ -8,6 +8,7 @@
  */
 
 /* -- Includes -- */
+#include <math.h>
 #include <EnableInterrupt.h>
 #include <PID_v1.h>
 #include "pins.h"
@@ -34,9 +35,11 @@ uint16_t currentEncoder, previousEncoder, deltaP;
 int16_t encoderDiff;
 float speedVal;
 
+const int MAX_TICKS = 816;
+
 void setup() {
   /* Setup Serial Communication */
-  Serial.begin(9600);
+  Serial.begin(250000);
   
   /* Enable Interrupts */
   enableInterrupt(ENCODERA_PIN, encoderAChange, CHANGE);
@@ -82,7 +85,7 @@ void loop() {
     currentEncoder = encoderPosition;
     /* Deal with the encoder count resetting to zero */
     encoderDiff = currentEncoder - previousEncoder;
-    deltaP = encoderDiff % maxEncoderPosition;
+    deltaP = encoderDiff % MAX_TICKS;
     /* Speed */
     speedVal = (deltaP*73.5)/deltaT;    
 
@@ -91,10 +94,18 @@ void loop() {
       PIDInput = speedVal;
       spinnerPID.Compute();
       OCR1B = PIDOutput;
-      Serial.print(speedVal);
-      Serial.print("\t");
-      Serial.println(105);
     }
+
+
   }
+
+  /* Report Angle of Spinner */
+  double angleRads = fmod(encoderPosition*0.0076968, 1.047198);
+  //double angleRads = encoderPosition*0.0076968 % 1.047198;
+  
+  Serial.println(angleRads, 5);
+  //Serial.print(",\n\r");
+  Serial.print("\t");
+  //Serial.println(encoderPosition);
   
 }

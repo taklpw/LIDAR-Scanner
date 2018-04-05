@@ -35,16 +35,12 @@ void setupMotor(){
 */
 void seekIndex(){ 
   /* Set motor direction */
-//  bitClear(PORTB, MOTOR_IN1_PORTB);
-//  bitSet(PORTB, MOTOR_IN2_PORTB);
   startMotor();
   /* Seek at ~39% speed */
   analogWrite(MOTOR_PWM_PIN, 100);
   /* Wait until index is found */
   while(!indexFlag);
   /* Apply brakes to the motor quickly */
-//  bitSet(PORTB, MOTOR_IN1_PORTB);
-//  analogWrite(MOTOR_PWM_PIN, 0);
   stopMotor();
 }
 
