@@ -21,12 +21,11 @@
 double setPoint, PIDInput, PIDOutput;
 /* 
  *  Values produced via Ziegler–Nichols method 
- *  Ku = 4, Tu = 0.75
+ *  Ku = 700, Tu = 0.75
  *  Ki slightly reduced to improve stability
- *  Speed varies +/- 5RPM
+ *  Speed varies +/- 3RPM
  */
-
-double Kp = 2.4, Ki = 2.6, Kd = 0.225;
+double Kp = 420, Ki = 900, Kd = 39.375;
 PID spinnerPID(&PIDInput, &PIDOutput, &setPoint, Kp, Ki, Kd, DIRECT);
 
 /* Global Variables */
@@ -54,16 +53,20 @@ void setup() {
   /* Setup PID Values */
   setPoint = 105;
   spinnerPID.SetMode(AUTOMATIC);
+  spinnerPID.SetOutputLimits(0, 65535);
   
   /* Seek Motor Index */
   seekIndex();
 
+  /* Setup Time and encoder tracking */
   currentTime = millis();
   currentEncoder = encoderPosition;
+  
+  /* Allow motor to be controlled */
+  startMotor();
+  setup16bitPWM();
+
   delay(1000);
-    /* Set motor direction */
-  bitClear(PORTB, MOTOR_IN1_PORTB);
-  bitSet(PORTB, MOTOR_IN2_PORTB);
 }
 
 
@@ -87,7 +90,10 @@ void loop() {
     if(speedVal < 160){
       PIDInput = speedVal;
       spinnerPID.Compute();
-      analogWrite(MOTOR_PWM_PIN, PIDOutput);
+      OCR1B = PIDOutput;
+      Serial.print(speedVal);
+      Serial.print("\t");
+      Serial.println(105);
     }
   }
   

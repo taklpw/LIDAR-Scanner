@@ -16,7 +16,8 @@
 /* -- Function Prototypes -- */
 void setupMotor(void);
 void seekIndex(void);
-void setMotorSpeed(void);
+void startMotor(void);
 void stopMotor(void);
+void setup16bitPWM(void);
 
 #endif
