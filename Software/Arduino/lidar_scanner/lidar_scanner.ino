@@ -94,8 +94,11 @@ void loop() {
       PIDInput = speedVal;
       spinnerPID.Compute();
       OCR1B = PIDOutput;
+      Serial.print(speedVal);
+      Serial.print("\t");
+      Serial.println(105);
     }
-
+    
 
   }
 
@@ -103,9 +106,9 @@ void loop() {
   double angleRads = fmod(encoderPosition*0.0076968, 1.047198);
   //double angleRads = encoderPosition*0.0076968 % 1.047198;
   
-  Serial.println(angleRads, 5);
+  //Serial.println(angleRads, 5);
   //Serial.print(",\n\r");
-  Serial.print("\t");
+  //Serial.print("\t");
   //Serial.println(encoderPosition);
   
 }
