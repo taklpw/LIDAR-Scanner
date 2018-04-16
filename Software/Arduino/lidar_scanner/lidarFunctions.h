@@ -12,9 +12,12 @@
 /* -- Includes -- */
 #include <Arduino.h>
 #include "pins.h"
+#include <Wire.h>
+#include <LIDARLite.h>
 
 /* -- Function Prototypes -- */
-void setupLidar(void);
+void setupLidar(LIDARLite);
 void readLidar(void);
 
 #endif
+

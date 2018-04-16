@@ -14,13 +14,14 @@
 /* -- Functions -- */
 /**
 * @brief Setup LIDAR Function
-* Sets up pins related to the LIDAR-Lite-V3
+* Sets up and configures the LIDAR Lite V3 default mode using
+* i2c at 400kHz
 * 
 * @return Does not return
-* @TODO Implement
 */
-void setupLidar(){
-  
+void setupLidar(LIDARLite lidarObject){
+  lidarObject.begin(0, true);
+  lidarObject.configure(0);
 }
 
 

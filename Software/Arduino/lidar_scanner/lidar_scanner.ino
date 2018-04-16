@@ -11,6 +11,8 @@
 #include <math.h>
 #include <EnableInterrupt.h>
 #include <PID_v1.h>
+#include <Wire.h>
+#include <LIDARLite.h>
 #include "pins.h"
 #include "interrupts.h"
 #include "motorFunctions.h"
@@ -21,7 +23,7 @@
 /* Setup Motor PID */
 double setPoint, PIDInput, PIDOutput;
 /* 
- *  Values produced via Ziegler–Nichols method 
+ *  Values produced via Zieglerâ€“Nichols method 
  *  Ku = 700, Tu = 0.75
  *  Ki slightly reduced to improve stability
  *  Speed varies +/- 3RPM
@@ -29,12 +31,14 @@ double setPoint, PIDInput, PIDOutput;
 double Kp = 420, Ki = 900, Kd = 39.375;
 PID spinnerPID(&PIDInput, &PIDOutput, &setPoint, Kp, Ki, Kd, DIRECT);
 
+/* Setup LIDAR */
+LIDARLite lidar;
+
 /* Global Variables */
 unsigned long currentTime, previousTime, deltaT;
 uint16_t currentEncoder, previousEncoder, deltaP;
 int16_t encoderDiff;
 float speedVal;
-
 const int MAX_TICKS = 816;
 
 void setup() {
@@ -47,9 +51,9 @@ void setup() {
   
   /* Setup Peripherals */
   setupMotor();
-  setupLidar();
+  setupLidar(lidar);
   setupIMU();
-
+  
   /* Calibrate Sensors */
   
   
@@ -73,7 +77,7 @@ void setup() {
 }
 
 
-void loop() { 
+void loop() {   
   /* -- Report motor RPM -- */ 
   /* Check if enough time has elapsed to run the RPM calculations */
   deltaT = millis()-previousTime;
@@ -94,21 +98,28 @@ void loop() {
       PIDInput = speedVal;
       spinnerPID.Compute();
       OCR1B = PIDOutput;
-      Serial.print(speedVal);
-      Serial.print("\t");
-      Serial.println(105);
+//      Serial.print(speedVal);
+//      Serial.print("\t");
+//      Serial.println(105);
     }
     
 
   }
 
   /* Report Angle of Spinner */
-  double angleRads = fmod(encoderPosition*0.0076968, 1.047198);
-  //double angleRads = encoderPosition*0.0076968 % 1.047198;
-  
-  //Serial.println(angleRads, 5);
-  //Serial.print(",\n\r");
-  //Serial.print("\t");
-  //Serial.println(encoderPosition);
-  
+  unsigned long distReadTime = micros();
+  int lidarDistance = lidar.distance();
+  //byte lidarIntensity = lidar.read(0x0e);
+  double angleRads = 2 * fmod(encoderPosition*0.0076968, 1.047198) + (PI/6);
+
+  Serial.print("~S:");
+  Serial.print(distReadTime);
+  Serial.print(",");
+  Serial.print(angleRads, 6);
+  Serial.print(",");
+  Serial.print(lidarDistance);
+  //Serial.print(", ");
+  //Serial.print(lidarIntensity);
+  Serial.print("~~\n\r");  
 }
+
