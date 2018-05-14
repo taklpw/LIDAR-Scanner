@@ -58,7 +58,7 @@ void setup() {
   
   
   /* Setup PID Values */
-  setPoint = 105;
+  setPoint = 50;
   spinnerPID.SetMode(AUTOMATIC);
   spinnerPID.SetOutputLimits(0, 65535);
   
@@ -98,18 +98,21 @@ void loop() {
       PIDInput = speedVal;
       spinnerPID.Compute();
       OCR1B = PIDOutput;
-//      Serial.print(speedVal);
-//      Serial.print("\t");
-//      Serial.println(105);
     }
     
 
   }
 
-  /* Report Angle of Spinner */
+  /* Record time */
   unsigned long distReadTime = micros();
+  /* Read distance of lidar */
   int lidarDistance = lidar.distance();
-  //byte lidarIntensity = lidar.read(0x0e);
+  /* Read intensity of the return */
+  byte arrayToSave[1];
+  char intensityReg = 0x0e;
+  lidar.read(intensityReg, 1, arrayToSave, true, LIDARLITE_ADDR_DEFAULT);
+  byte lidarIntensity = arrayToSave[0];
+  /* Report Angle of Spinner */
   double angleRads = 2 * fmod(encoderPosition*0.0076968, 1.047198) + (PI/6);
 
   Serial.print("~S:");
@@ -118,8 +121,8 @@ void loop() {
   Serial.print(angleRads, 6);
   Serial.print(",");
   Serial.print(lidarDistance);
-  //Serial.print(", ");
-  //Serial.print(lidarIntensity);
+  Serial.print(", ");
+  Serial.print(lidarIntensity);
   Serial.print("~~\n\r");  
 }
 

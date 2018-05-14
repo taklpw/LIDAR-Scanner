@@ -37,7 +37,7 @@ void seekIndex(){
   /* Set motor direction */
   startMotor();
   /* Seek at ~39% speed */
-  analogWrite(MOTOR_PWM_PIN, 100);
+  analogWrite(MOTOR_PWM_PIN, 50);
   /* Wait until index is found */
   while(!indexFlag);
   /* Apply brakes to the motor quickly */

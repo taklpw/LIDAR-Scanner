@@ -1,0 +1,8 @@
+# Post-Processing gitignore
+# Ignore Everything
+/*
+
+# Except these
+!.gitignore
+!*.py
+!*.txt
