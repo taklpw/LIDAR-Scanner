@@ -97,9 +97,10 @@ for i in range(len(scanNumbers)):
         indvSegmentData.append([scanNumbers[i], timestamps[i], angles[i], distances[i], intensities[i]])
 
 
-print("Rejections:\t", rejections)
-print("Scans:\t", scanNumber)
-print("Average Valid Points Per Scan:\t", (len(scanData)-rejections)/scanNumber)
+print("Rejections:\t%d" % rejections)
+print("Scans:\t%d" % scanNumber)
+print("Average Valid Points Per Scan:\t%f" % ((len(scanData)-rejections)/scanNumber))
+print("Scan Time:\t%f seconds" % ((timestamps[-1] - timestamps[0])/(10**6)))
 
 # Plot data as polar scatter plot
 colors = intensities
