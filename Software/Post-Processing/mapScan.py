@@ -1,14 +1,19 @@
 import numpy as np
 from pylab import *
 import matplotlib.pyplot as plt
-from math import cos, sin, pi
+from math import cos, sin, pi, radians
 import cv2
 
 # open file with scan data
 allData = open("testData.txt").read().split('\n')
 
 # Fixed rotation
-rot = -pi/4
+frame_rot = -pi/4
+piece_rot = -4*pi/3
+
+# Point at which the LIDAR is reflecting on itself and the bounds around which points are removed
+reflection_point = pi/9
+remove_range = radians(10)
 
 # Split the data into their own datasets
 scanData = []
@@ -37,17 +42,34 @@ for i in range(len(scanData)):
     scanData[i][0] = int(scanData[i][0])
     timestamps.append(scanData[i][0])
     scanData[i][1] = float(scanData[i][1])
-    angles.append(scanData[i][1]+rot)
+    angles.append(scanData[i][1] + frame_rot)
     scanData[i][2] = int(scanData[i][2])
     distances.append(scanData[i][2])
     scanData[i][3] = int(scanData[i][3])
     intensities.append(scanData[i][3])
 
-    # Euler angle the angles
+    # Clamps the outputs of the rotations, if the scan is greater than 130 degrees or less than 30 degrees drop the scan
+    # print(pi/6, pi/18)
+    # print(reflection_point+remove_range, reflection_point-remove_range)
+    if reflection_point+remove_range > angles[-1] > reflection_point-remove_range:
+    # if pi/6 > angles[-1] > pi/18:
+        del timestamps[-1]
+        del distances[-1]
+        del intensities[-1]
+        del angles[-1]
+        rejections += 1
+        continue
+    else:
+        pass
+
+    # If the angles reported are out of range, rotate them back into their proper place
+    # Rotate 240 degrees CCW if the angles is lower than 20 degrees
+    if angles[-1] < reflection_point:
+        angles[-1] = angles[-1] + piece_rot
 
     # Transform the angles and distances into x-y data
-    xScanData.append(distances[i-rejections]*cos(angles[i-rejections]))
-    yScanData.append(distances[i-rejections]*sin(angles[i-rejections]))
+    xScanData.append(distances[-1]*cos(angles[-1]))
+    yScanData.append(distances[-1]*sin(angles[-1]))
 
     if i == 0:
         scanNumbers.append(scanNumber)
@@ -58,19 +80,38 @@ for i in range(len(scanData)):
     else:
         scanNumbers.append(scanNumber)
 
-print("Rejections:\t", rejections)
-print("Scans:\t", scanNumber)
-print("Points Per Scan:\t", len(scanData)/scanNumber)
+# Create list of lists containing the different scans
+# This essentially captures different 'frames' for ICP
+scanSegmentedData = []
+indvSegmentData = []
+for i in range(len(scanNumbers)):
+    if i == 0:
+        indvSegmentData.append([scanNumbers[i], timestamps[i], angles[i], distances[i], intensities[i]])
+        continue
+
+    if scanNumbers[i] == scanNumbers[i-1]:
+        indvSegmentData.append([scanNumbers[i], timestamps[i], angles[i], distances[i], intensities[i]])
+    else:
+        scanSegmentedData.append(indvSegmentData.copy())
+        indvSegmentData.clear()
+        indvSegmentData.append([scanNumbers[i], timestamps[i], angles[i], distances[i], intensities[i]])
+
+
+print("Rejections:\t%d" % rejections)
+print("Scans:\t%d" % scanNumber)
+print("Average Valid Points Per Scan:\t%f" % ((len(scanData)-rejections)/scanNumber))
+print("Scan Time:\t%f seconds" % ((timestamps[-1] - timestamps[0])/(10**6)))
 
 # Plot data as polar scatter plot
 colors = intensities
-ax = subplot(111, polar=True)
-p = scatter(angles, distances, c=colors, cmap=inferno())
-p.set_alpha(0.75)
-plt.colorbar()
-show()
+# colors = scanNumbers
+# ax = subplot(111, polar=True)
+# p = scatter(angles, distances, c=colors, cmap=inferno(), s=5)
+# p.set_alpha(0.75)
+# plt.colorbar()
+# show()
 
 # Plot data as cartesian
-# plt.scatter(xScanData, yScanData, c=colors)
-# plt.colorbar()
-# plt.show()
+plt.scatter(xScanData, yScanData, c=colors, cmap=inferno(), s=5)
+plt.colorbar()
+plt.show()
