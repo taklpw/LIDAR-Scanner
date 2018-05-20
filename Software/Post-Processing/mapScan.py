@@ -1,8 +1,38 @@
 import numpy as np
 from pylab import *
 import matplotlib.pyplot as plt
+from sklearn.neighbors import NearestNeighbors
 from math import cos, sin, pi, radians
 import cv2
+from Icp2d import *
+import vtk
+from vtk import *
+
+
+# ICP Function
+# https://stackoverflow.com/questions/20120384/iterative-closest-point-icp-implementation-on-python
+# def icp(a, b, init_pose=(0,0,0), no_iterations = 13):
+#     src = np.array([a.T], copy=True).astype(np.float32)
+#     dst = np.array([b.T], copy=True).astype(np.float32)
+#
+#     Tr = np.array([[np.cos(init_pose[2]),-np.sin(init_pose[2]),init_pose[0]],
+#                    [np.sin(init_pose[2]), np.cos(init_pose[2]),init_pose[1]],
+#                    [0,                    0,                   1          ]])
+#
+#     src = cv2.transform(src, Tr[0:2])
+#     for i in range(no_iterations):
+#         nbrs = NearestNeighbors(n_neighbors=1, algorithm='auto',
+#                                 warn_on_equidistant=False).fit(dst[0])
+#         distances, indices = nbrs.kneighbors(src[0])
+#
+#         T = cv2.estimateRigidTransform(src, dst[0, indices.T], False)
+#
+#         src = cv2.transform(src, T)
+#
+#         Tr = np.dot(Tr, np.vstack((T, [0,0,1])))
+#
+#     return Tr[0:2]
+
 
 # open file with scan data
 allData = open("testData.txt").read().split('\n')
@@ -84,18 +114,20 @@ for i in range(len(scanData)):
 # This essentially captures different 'frames' for ICP
 scanSegmentedData = []
 indvSegmentData = []
-for i in range(len(scanNumbers)):
+for i in range(len(xScanData)):
     if i == 0:
-        indvSegmentData.append([scanNumbers[i], timestamps[i], angles[i], distances[i], intensities[i]])
+        indvSegmentData.append([xScanData[i], yScanData[i]])
         continue
 
     if scanNumbers[i] == scanNumbers[i-1]:
-        indvSegmentData.append([scanNumbers[i], timestamps[i], angles[i], distances[i], intensities[i]])
+        indvSegmentData.append([xScanData[i], yScanData[i]])
     else:
         scanSegmentedData.append(indvSegmentData.copy())
         indvSegmentData.clear()
-        indvSegmentData.append([scanNumbers[i], timestamps[i], angles[i], distances[i], intensities[i]])
+        indvSegmentData.append([xScanData[i], yScanData[i]])
 
+# Convert data into numpy array
+npScanSegmentData = np.array([np.array(xi) for xi in scanSegmentedData])
 
 print("Rejections:\t%d" % rejections)
 print("Scans:\t%d" % scanNumber)
@@ -112,6 +144,27 @@ colors = intensities
 # show()
 
 # Plot data as cartesian
-plt.scatter(xScanData, yScanData, c=colors, cmap=inferno(), s=5)
-plt.colorbar()
-plt.show()
+# plt.scatter(xScanData, yScanData, c=colors, cmap=inferno(), s=5)
+# plt.axis('equal')
+# grid(True)
+# plt.title('Line Scans')
+# plt.xlabel('X (cm)')
+# plt.ylabel("Y (cm)")
+# plt.colorbar().set_label('Intensity')
+# plt.show()
+
+# Do ICP Here
+# for i in range(1, len(npScanSegmentData)):
+ret = icp(npScanSegmentData[1], npScanSegmentData[2])
+# M2 = icp(npScanSegmentData[1], npScanSegmentData[2], [0, 0, 0])
+# src = np.array([npScanSegmentData[1].T]).astype(np.float32)
+# res = cv2.transform(src, M2)
+
+# print(npScanSegmentData[3])
+# x = npScanSegmentData[3][:,0]
+# y = npScanSegmentData[3][:,1]
+# print(x)
+# print(" ")
+# print(y)
+# plt.scatter(x, y)
+# plt.show()
