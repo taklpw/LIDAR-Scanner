@@ -5,7 +5,7 @@ from math import cos, sin, pi
 import cv2
 
 # open file with scan data
-allData = open("testDataBright90.txt").read().split('\n')
+allData = open("testData.txt").read().split('\n')
 
 # Fixed rotation
 rot = -pi/4

@@ -1,10 +1,9 @@
 /**
  * @author Kelly Lynch
- * @date 2018-03-25
+ * @date 2018-05-20
  * @brief Arduino code to control a motor, IMU sensor, and LIDAR-Lite-V3.
  *
  * @bugs None known
- * @todo everything
  */
 
 /* -- Includes -- */
@@ -13,6 +12,7 @@
 #include <PID_v1.h>
 #include <Wire.h>
 #include <LIDARLite.h>
+#include <MPU6050.h>
 #include "pins.h"
 #include "interrupts.h"
 #include "motorFunctions.h"
@@ -34,6 +34,9 @@ PID spinnerPID(&PIDInput, &PIDOutput, &setPoint, Kp, Ki, Kd, DIRECT);
 /* Setup LIDAR */
 LIDARLite lidar;
 
+/* Setup Accelerometer and Gyroscope*/
+MPU6050 mpu;
+
 /* Global Variables */
 unsigned long currentTime, previousTime, deltaT;
 uint16_t currentEncoder, previousEncoder, deltaP;
@@ -52,10 +55,7 @@ void setup() {
   /* Setup Peripherals */
   setupMotor();
   setupLidar(lidar);
-  setupIMU();
-  
-  /* Calibrate Sensors */
-  
+  setupIMU(mpu);
   
   /* Setup PID Values */
   setPoint = 50;
@@ -72,6 +72,7 @@ void setup() {
   /* Allow motor to be controlled */
   startMotor();
   setup16bitPWM();
+  
 
   delay(1000);
 }
@@ -99,30 +100,24 @@ void loop() {
       spinnerPID.Compute();
       OCR1B = PIDOutput;
     }
-    
-
   }
 
-  /* Record time */
-  unsigned long distReadTime = micros();
-  /* Read distance of lidar */
-  int lidarDistance = lidar.distance();
-  /* Read intensity of the return */
-  byte arrayToSave[1];
-  char intensityReg = 0x0e;
-  lidar.read(intensityReg, 1, arrayToSave, true, LIDARLITE_ADDR_DEFAULT);
-  byte lidarIntensity = arrayToSave[0];
-  /* Report Angle of Spinner */
-  double angleRads = 2 * fmod(encoderPosition*0.0076968, 1.047198) + (PI/6);
-
-  Serial.print("~S:");
-  Serial.print(distReadTime);
-  Serial.print(",");
-  Serial.print(angleRads, 6);
-  Serial.print(",");
-  Serial.print(lidarDistance);
-  Serial.print(", ");
-  Serial.print(lidarIntensity);
-  Serial.print("~~\n\r");  
+  /* -- Report LIDAR Measurements -- */
+  /* Check if LIDAR is busy */  
+  byte statusArray[1];
+  char statusReg = 0x01;
+  lidar.read(statusReg, 1, statusArray, false, LIDARLITE_ADDR_DEFAULT);
+  int busyFlag = bitRead(statusArray[0], 0);
+  if(busyFlag == 0){
+    Serial.print(readLidar(lidar));
+  }
+  
+  /* -- Report IMU Measurements -- */
+  if(mpu.readActivites().isDataReady){
+    Serial.print(readAccel(mpu));
+  }
+  if(mpu.readActivites().isDataReady){
+    Serial.print(readGyro(mpu));
+  }
 }
 

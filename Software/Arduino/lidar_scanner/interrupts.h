@@ -1,9 +1,8 @@
 /**
  * @file interrupts.h
  * @author Kelly Lynch
- * @date 25 Mar 2018
+ * @date 20 May 2018
  * @brief Header file for interrupt functions and variables
- * @todo Implement
  */
 
 #ifndef H_interrupts

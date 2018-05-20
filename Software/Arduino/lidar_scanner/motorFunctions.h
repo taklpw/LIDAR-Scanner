@@ -1,9 +1,8 @@
 /**
  * @file motorFunctions.h
  * @author Kelly Lynch
- * @date 18 Mar 2018
+ * @date 20 May 2018
  * @brief Header file for the motor functions
- * @todo Implement
  */
 
 #ifndef H_motorFunctions
@@ -11,6 +10,7 @@
 
 /* -- Includes -- */
 #include <Arduino.h>
+#include <PID_v1.h>
 #include "pins.h"
 
 /* -- Function Prototypes -- */

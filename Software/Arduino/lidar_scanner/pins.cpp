@@ -15,8 +15,8 @@ uint8_t UART_TX_PORTD = 1;
 uint8_t UART_RX_PIN   = 0;
 uint8_t UART_RX_PORTD = 0;
 /* Encoder Pins */
-uint8_t INDEX_PIN    = 2;
-uint8_t INDEX_PORTD  = 2;
+uint8_t INDEX_PIN    = A3;
+uint8_t INDEX_PORTC  = 3;
 uint8_t ENCODERA_PIN = 3;
 uint8_t ENCODERA_PORTD = 3;
 uint8_t ENCODERB_PIN = 4;
