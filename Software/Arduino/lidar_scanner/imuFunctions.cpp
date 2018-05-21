@@ -60,7 +60,7 @@ String readAccel(MPU6050 &mpuObject){
 * @brief Read Gyroscopic Function
 * Reads the Gyroscope.
 * 
-* @return Does not return
+* @return String with Gyroscope information
 */
 String readGyro(MPU6050 &mpuObject){
   /* Record time, then measurements */
@@ -78,5 +78,37 @@ String readGyro(MPU6050 &mpuObject){
   GyroString += String(gyroNorm.ZAxis, 6);
   GyroString += "~~\n\r";
   return GyroString;
+}
+
+
+/**
+* @brief Read Both Function
+* Reads the Gyroscope and accelerometer.
+* 
+* @return String with Gyroscope and Accelerometer information
+*/
+String readIMU(MPU6050 &mpuObject){
+  /* Record time, then measurements */
+  unsigned long imuReadTime = micros();
+  Vector accelNorm = mpuObject.readNormalizeGyro();
+  Vector gyroNorm = mpuObject.readNormalizeGyro();
+
+  /* Send Gyroscope information */
+  String IMUString = "~I:";
+  IMUString += imuReadTime;
+  IMUString += ",";
+  IMUString += String(accelNorm.XAxis, 6);
+  IMUString += ",";
+  IMUString += String(accelNorm.YAxis, 6);
+  IMUString += ",";
+  IMUString += String(accelNorm.ZAxis, 6);
+  IMUString += ",";
+  IMUString += String(gyroNorm.XAxis, 6);
+  IMUString += ",";
+  IMUString += String(gyroNorm.YAxis, 6);
+  IMUString += ",";
+  IMUString += String(gyroNorm.ZAxis, 6);
+  IMUString += "~~\n\r";
+  return IMUString;
 }
 

@@ -18,6 +18,7 @@
 void setupIMU(MPU6050&);
 String readAccel(MPU6050&);
 String readGyro(MPU6050&);
+String readIMU(MPU6050&);
 
 #endif
 

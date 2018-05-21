@@ -43,7 +43,7 @@ uint16_t currentEncoder, previousEncoder, deltaP;
 int16_t encoderDiff;
 float speedVal;
 const int MAX_TICKS = 816;
-unsigned long accelTime, gyroTime, lidarTime;
+unsigned long accelTime, gyroTime, imuTime;
 
 void setup() {
   /* Setup Serial Communication */
@@ -80,6 +80,7 @@ void setup() {
   /* Mark time for sensor readings */
   accelTime = millis();
   gyroTime = millis();
+  imuTime = millis();
 }
 
 
@@ -106,7 +107,13 @@ void loop() {
       OCR1B = PIDOutput;
     }
   }
-
+  
+  /* -- Report IMU Measurements -- */
+  if(millis()-imuTime >= 20){
+    imuTime = millis();
+    Serial.print(readIMU(mpu));  
+  }
+  
   /* -- Report LIDAR Measurements -- */
   /* Check if LIDAR is busy */  
   /* Read lidar as fast as possible (no set frequency) */
@@ -118,20 +125,20 @@ void loop() {
     Serial.print(readLidar(lidar));
   }
   
-  /* -- Report IMU Measurements -- */
-  /* Read Acceleration at 50Hz*/
-  if(millis()-accelTime >= 20){
-    accelTime = millis();
-    if(mpu.readActivites().isDataReady){
-      Serial.print(readAccel(mpu));
-    }
-  }
-  /* Read Gyroscope at 50Hz */
-  if(millis()-gyroTime >= 20){
-    gyroTime = millis();
-    if(mpu.readActivites().isDataReady){
-      Serial.print(readGyro(mpu));
-    }
-  }
+
+//  /* Read Acceleration at 50Hz*/
+//  if(millis()-accelTime >= 20){
+//    accelTime = millis();
+//    if(mpu.readActivites().isDataReady){
+//      Serial.print(readAccel(mpu));
+//    }
+//  }
+//  /* Read Gyroscope at 50Hz */
+//  if(millis()-gyroTime >= 20){
+//    gyroTime = millis();
+//    if(mpu.readActivites().isDataReady){
+//      Serial.print(readGyro(mpu));
+//    }
+//  }
 }
 
