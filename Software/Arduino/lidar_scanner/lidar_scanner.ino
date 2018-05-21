@@ -43,6 +43,7 @@ uint16_t currentEncoder, previousEncoder, deltaP;
 int16_t encoderDiff;
 float speedVal;
 const int MAX_TICKS = 816;
+unsigned long accelTime, gyroTime, lidarTime;
 
 void setup() {
   /* Setup Serial Communication */
@@ -72,9 +73,13 @@ void setup() {
   /* Allow motor to be controlled */
   startMotor();
   setup16bitPWM();
-  
 
+  /* Wait before starting the program */
   delay(1000);
+
+  /* Mark time for sensor readings */
+  accelTime = millis();
+  gyroTime = millis();
 }
 
 
@@ -104,6 +109,7 @@ void loop() {
 
   /* -- Report LIDAR Measurements -- */
   /* Check if LIDAR is busy */  
+  /* Read lidar as fast as possible (no set frequency) */
   byte statusArray[1];
   char statusReg = 0x01;
   lidar.read(statusReg, 1, statusArray, false, LIDARLITE_ADDR_DEFAULT);
@@ -113,11 +119,19 @@ void loop() {
   }
   
   /* -- Report IMU Measurements -- */
-  if(mpu.readActivites().isDataReady){
-    Serial.print(readAccel(mpu));
+  /* Read Acceleration at 50Hz*/
+  if(millis()-accelTime >= 20){
+    accelTime = millis();
+    if(mpu.readActivites().isDataReady){
+      Serial.print(readAccel(mpu));
+    }
   }
-  if(mpu.readActivites().isDataReady){
-    Serial.print(readGyro(mpu));
+  /* Read Gyroscope at 50Hz */
+  if(millis()-gyroTime >= 20){
+    gyroTime = millis();
+    if(mpu.readActivites().isDataReady){
+      Serial.print(readGyro(mpu));
+    }
   }
 }
 
