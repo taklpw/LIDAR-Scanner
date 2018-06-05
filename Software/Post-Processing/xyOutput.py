@@ -1,8 +1,10 @@
 from pylab import *
+import numpy as np
+import matplotlib.pyplot as plt
 from math import cos, sin, pi, radians
 
 # open file with scan data
-allData = open("aluminiumTest.txt").read().split('\n')
+allData = open("flatTestData.txt").read().split('\n')
 
 # Fixed rotation
 frame_rot = -pi/4-0.08
@@ -101,33 +103,31 @@ print("Average Valid Points Per Scan:\t%f" % ((len(scanData)-rejections)/scanNum
 print("Scan Time:\t%f seconds" % ((scanTimestamps[-1] - scanTimestamps[0]) / (10 ** 6)))
 
 # Plot data as polar scatter plot
-colors = intensities
-# colors = scanNumbers
-# colors = yScanData
-# Plot data as cartesian
-plt.scatter(xScanData, yScanData, c=colors, cmap=inferno(), s=5)
-plt.axis('equal')
-grid(True)
-plt.title('Line Scans')
-plt.xlabel('X (cm)')
-plt.ylabel("Y (cm)")
-plt.colorbar().set_label('Intensity')
-plt.show()
-#
-# ### OUTPUTS
-# ## Timestamp, Scan Number, X-point, Y-point
-# f = open('xy-data.txt', 'w')
-# for i in range(len(xScanData)):
-#     f.write(str(scanTimestamps[i]) + ',' + str(scanNumbers[i]) + ',' + str(xScanData[i]) + ',' + str(yScanData[i]) + '\n')
-#
-# ## Timestamp, X-Accel, Y-Accel, Z-Accel
-# pass
-# # f = open('accel-data.txt', 'w')
-# # for i in range(len()):
-# #     f.write()
-#
-# ## Timestamp, Yaw, Pitch, Roll
-# pass
-# # f = open('gyro-data.txt', 'w')
-# # for i in range(len()):
-# #     f.write()
+# colors = intensities
+# # colors = scanNumbers
+# # colors = yScanData
+# # Plot data as cartesian
+# plt.scatter(xScanData, yScanData, c=colors, cmap=inferno(), s=5)
+# plt.axis('equal')
+# grid(True)
+# plt.title('Line Scans')
+# plt.xlabel('X (cm)')
+# plt.ylabel("Y (cm)")
+# plt.colorbar().set_label('Intensity')
+# plt.show()
+
+
+# Calculate Statistics of data
+print("")
+numpyY = np.array(yScanData)
+print("Standard Deviation: %f" % np.std(numpyY))
+print("Mean: %f" % np.mean(numpyY))
+print("Variance: %f" % np.var(numpyY))
+
+# Create histogram of Y positions
+# plt.hist(yScanData, bins=70)
+# plt.title('Variance of Distance Readings')
+# plt.xlabel('Y Value (cm)')
+# plt.ylabel("Number of Readings")
+# plt.grid(True)
+# plt.show()
