@@ -13,6 +13,7 @@
 #include <Wire.h>
 #include <LIDARLite.h>
 #include <MPU6050.h>
+#include <HMC5883L.h>
 #include "pins.h"
 #include "interrupts.h"
 #include "motorFunctions.h"
@@ -37,6 +38,10 @@ LIDARLite lidar;
 /* Setup Accelerometer and Gyroscope*/
 MPU6050 mpu;
 
+/* Magnetometer */
+HMC5883L mag;
+
+
 /* Global Variables */
 unsigned long currentTime, previousTime, deltaT;
 uint16_t currentEncoder, previousEncoder, deltaP;
@@ -56,7 +61,7 @@ void setup() {
   /* Setup Peripherals */
   setupMotor();
   setupLidar(lidar);
-  setupIMU(mpu);
+  setupIMU(mpu, mag);
   
   /* Setup PID Values */
   setPoint = 50;
@@ -109,10 +114,10 @@ void loop() {
   }
   
   /* -- Report IMU Measurements -- */
-  if(millis()-imuTime >= 20){
-    imuTime = millis();
-    Serial.print(readIMU(mpu));  
-  }
+//  if(millis()-imuTime >= 20){
+//    imuTime = millis();
+//    Serial.print(readIMU(mpu));  
+//  }
   
   /* -- Report LIDAR Measurements -- */
   /* Check if LIDAR is busy */  
@@ -126,19 +131,16 @@ void loop() {
   }
   
 
-//  /* Read Acceleration at 50Hz*/
-//  if(millis()-accelTime >= 20){
-//    accelTime = millis();
 //    if(mpu.readActivites().isDataReady){
-//      Serial.print(readAccel(mpu));
+      Serial.print(readAccel(mpu));
 //    }
-//  }
-//  /* Read Gyroscope at 50Hz */
-//  if(millis()-gyroTime >= 20){
-//    gyroTime = millis();
+  
 //    if(mpu.readActivites().isDataReady){
-//      Serial.print(readGyro(mpu));
+      Serial.print(readGyro(mpu));
 //    }
-//  }
+
+//    if(mag.readActivities().isDataReady){
+      Serial.print(readMag(mag));  
+//    }
 }
 

@@ -13,11 +13,13 @@
 #include "pins.h"
 #include <Wire.h>
 #include <MPU6050.h>
+#include <HMC5883L.h>
 
 /* -- Function Prototypes -- */
-void setupIMU(MPU6050&);
+void setupIMU(MPU6050&, HMC5883L&);
 String readAccel(MPU6050&);
 String readGyro(MPU6050&);
+String readMag(HMC5883L&);
 String readIMU(MPU6050&);
 
 #endif

@@ -17,12 +17,22 @@
 * 
 * @return Does not return
 */
-void setupIMU(MPU6050 &mpuObject){
+void setupIMU(MPU6050 &mpuObject, HMC5883L &magObject){
   /* Check MPU605 exists */
   while(!mpuObject.begin(MPU6050_SCALE_2000DPS, MPU6050_RANGE_2G)){
     Serial.println("Could not find valid MPU6050");
     delay(500);
   }
+
+  mpuObject.setI2CMasterModeEnabled(false);
+  mpuObject.setI2CBypassEnabled(true);
+  mpuObject.setSleepEnabled(false);
+  /* Check HMC5883 Exists */
+  while(!magObject.begin()){
+      Serial.println("Could not find valid HMC5883L");
+      delay(500); 
+  }
+
   
   /* Calibrate Gyroscope and set sensitivity threshold */
   mpuObject.calibrateGyro();
@@ -40,7 +50,7 @@ String readAccel(MPU6050 &mpuObject){
     /* Record time, then measurements */
   unsigned long imuReadTime = micros();
   Vector accelNorm = mpuObject.readNormalizeAccel(); 
-
+  unsigned long endTime = micros();
   
   /* Send Acceleration information */
   String AccelString = "~A:";
@@ -78,6 +88,31 @@ String readGyro(MPU6050 &mpuObject){
   GyroString += String(gyroNorm.ZAxis, 6);
   GyroString += "~~\n\r";
   return GyroString;
+}
+
+
+/**
+* @brief Read Magnetometer Function
+* Reads the Magnetometer.
+* 
+* @return String with Magnetometer information
+*/
+String readMag(HMC5883L &magObject){
+  /* Record time, then measurements */
+  unsigned long magReadTime = micros();
+  Vector magNorm = magObject.readNormalize();
+
+  /* Send Gyroscope information */
+  String MagString = "~M:";
+  MagString += magReadTime;
+  MagString += ",";
+  MagString += String(magNorm.XAxis, 6);
+  MagString += ",";
+  MagString += String(magNorm.YAxis, 6);
+  MagString += ",";
+  MagString += String(magNorm.ZAxis, 6);
+  MagString += "~~\n\r";
+  return MagString;
 }
 
 

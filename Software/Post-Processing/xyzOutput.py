@@ -1,19 +1,22 @@
-from pylab import *
+from mpl_toolkits.mplot3d import Axes3D
+import matplotlib.pyplot as plt
+from matplotlib.pyplot import *
 from math import cos, sin, pi, radians
+import numpy as np
 
 # open file with scan data
-allData = open("aluminiumTest.txt").read().split('\n')
+allData = open("testDataHallwaySkateboard.txt").read().split('\n')
 
 # Fixed rotation
-frame_rot = -pi/4-0.08
+frame_rot = -pi/4
 piece_rot = -4*pi/3
 
 # Point at which the LIDAR is reflecting on itself and the bounds around which points are removed
 reflection_point = pi/9
-remove_range = radians(30)
+remove_range = radians(10)
 
 # Minimum distance to pick up scans
-min_distance = 10
+min_distance = 20
 
 # Split the data into their own datasets
 scanData = []
@@ -31,8 +34,10 @@ intensities = []
 scanNumbers = []
 xScanData = []
 yScanData = []
+zScanData = []
 rejections = 0
 scanNumber = 0
+first_timestamp = int(scanData[0][0])
 for i in range(len(scanData)):
     # Reject any invalid data
     if int(scanData[i][2]) < min_distance:
@@ -40,11 +45,11 @@ for i in range(len(scanData)):
         continue
 
     # Cast the data as their proper types
-    scanData[i][0] = int(scanData[i][0])
+    scanData[i][0] = (int(scanData[i][0]) - first_timestamp) * 10**-6
     scanTimestamps.append(scanData[i][0])
     scanData[i][1] = float(scanData[i][1])
     angles.append(scanData[i][1] + frame_rot)
-    scanData[i][2] = int(scanData[i][2])-4  # 2cm offset from mirror, doubled
+    scanData[i][2] = int(scanData[i][2])
     distances.append(scanData[i][2])
     scanData[i][3] = int(scanData[i][3])
     intensities.append(scanData[i][3])
@@ -67,7 +72,7 @@ for i in range(len(scanData)):
 
     # Transform the angles and distances into x-y data
     xScanData.append(distances[-1]*cos(angles[-1]))
-    yScanData.append(distances[-1]*sin(angles[-1]))
+    zScanData.append(distances[-1]*sin(angles[-1]))
 
     if i == 0:
         scanNumbers.append(scanNumber)
@@ -78,56 +83,45 @@ for i in range(len(scanData)):
     else:
         scanNumbers.append(scanNumber)
 
+xScanData = np.array(xScanData)
+# Generate pseudo y timeseries for constant travel
+yScanData = np.linspace(0, 500, len(xScanData))
+zScanData = np.array(zScanData)
+
+
 # Create list of lists containing the different scans
 # This essentially captures different 'frames' for ICP
 scanSegmentedData = []
 indvSegmentData = []
 for i in range(len(xScanData)):
     if i == 0:
-        indvSegmentData.append([xScanData[i], yScanData[i]])
+        indvSegmentData.append([xScanData[i], zScanData[i]])
         continue
 
     if scanNumbers[i] == scanNumbers[i-1]:
-        indvSegmentData.append([xScanData[i], yScanData[i]])
+        indvSegmentData.append([xScanData[i], zScanData[i]])
     else:
         scanSegmentedData.append(indvSegmentData.copy())
         indvSegmentData.clear()
-        indvSegmentData.append([xScanData[i], yScanData[i]])
+        indvSegmentData.append([xScanData[i], zScanData[i]])
 
 
 print("Rejections:\t%d" % rejections)
 print("Scans:\t%d" % scanNumber)
 print("Average Valid Points Per Scan:\t%f" % ((len(scanData)-rejections)/scanNumber))
-print("Scan Time:\t%f seconds" % ((scanTimestamps[-1] - scanTimestamps[0]) / (10 ** 6)))
+print("Scan Time:\t%f seconds" % (scanTimestamps[-1] - scanTimestamps[0]))
 
 # Plot data as polar scatter plot
-colors = intensities
+colors = zScanData
 # colors = scanNumbers
-# colors = yScanData
 # Plot data as cartesian
-plt.scatter(xScanData, yScanData, c=colors, cmap=inferno(), s=5)
-plt.axis('equal')
-grid(True)
-plt.title('Line Scans')
-plt.xlabel('X (cm)')
-plt.ylabel("Y (cm)")
-plt.colorbar().set_label('Intensity')
+fig = plt.figure();
+ax = Axes3D(fig)
+# ax = fig.add_subplot(111, projection='3d')
+ax.scatter(xScanData, yScanData, zScanData, c=colors, cmap='jet')
+ax.axis('equal')
+# for ii in range(0,360,1):
+#     ax.view_init(elev=20, azim=ii)
+#     savefig("scanSpin\\movie%d.png" % ii)
+plt.gca().invert_xaxis()
 plt.show()
-#
-# ### OUTPUTS
-# ## Timestamp, Scan Number, X-point, Y-point
-# f = open('xy-data.txt', 'w')
-# for i in range(len(xScanData)):
-#     f.write(str(scanTimestamps[i]) + ',' + str(scanNumbers[i]) + ',' + str(xScanData[i]) + ',' + str(yScanData[i]) + '\n')
-#
-# ## Timestamp, X-Accel, Y-Accel, Z-Accel
-# pass
-# # f = open('accel-data.txt', 'w')
-# # for i in range(len()):
-# #     f.write()
-#
-# ## Timestamp, Yaw, Pitch, Roll
-# pass
-# # f = open('gyro-data.txt', 'w')
-# # for i in range(len()):
-# #     f.write()
